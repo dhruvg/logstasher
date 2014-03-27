@@ -99,8 +99,14 @@ module LogStasher
   private
 
   def new_logger(path)
-    FileUtils.touch path # prevent autocreate messages in log
-    Logger.new path
+    if defined?(Rails)
+      file = File.open(path, 'a')
+      file.sync = !Rails.env.production?
+      Logger.new file
+    else
+      FileUtils.touch path # prevent autocreate messages in log
+      Logger.new path
+    end
   end
 end
 
